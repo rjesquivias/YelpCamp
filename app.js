@@ -6,6 +6,7 @@ const methodOverride = require('method-override');
 const { join } = require('path');
 const campgrounds = require('./routes/campgrounds');
 const reviews = require('./routes/reviews');
+const session = require('express-session');
 require('dotenv/config');
 
 mongoose.connect(process.env.DB_CONNECTION, {
@@ -30,6 +31,18 @@ app.set('views', join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(join(__dirname, 'public')));
+
+const sessionConfig = {
+	secret: 'thisshouldbeabettersecret!',
+	resave: false,
+	saveUninitialized: true,
+	cookie: {
+		httpOnly: true,
+		expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+		maxAge: 1000 * 60 * 60 * 24 * 7
+	}
+};
+app.use(session(sessionConfig));
 
 app.use('/campgrounds', campgrounds);
 app.use('/campgrounds/:id/reviews', reviews);
